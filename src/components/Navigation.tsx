@@ -1,8 +1,24 @@
-import { ShoppingBag, Search, User, Heart } from "lucide-react";
+import { useState } from "react";
+import { ShoppingBag, Search, User, Heart, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
+import { useCart } from "@/contexts/CartContext";
 
 const Navigation = () => {
+  const { cartCount } = useCart();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      window.location.href = `/collections?search=${encodeURIComponent(searchQuery)}`;
+      setSearchOpen(false);
+      setSearchQuery("");
+    }
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
       <div className="container mx-auto px-6">
@@ -30,7 +46,12 @@ const Navigation = () => {
 
           {/* Action Icons */}
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="icon" className="hover:text-accent transition-colors">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hover:text-accent transition-colors"
+              onClick={() => setSearchOpen(!searchOpen)}
+            >
               <Search className="h-5 w-5" />
             </Button>
             <Button variant="ghost" size="icon" className="hover:text-accent transition-colors">
@@ -42,14 +63,48 @@ const Navigation = () => {
             <Link to="/cart">
               <Button variant="ghost" size="icon" className="hover:text-accent transition-colors relative">
                 <ShoppingBag className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 bg-accent text-primary text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                  0
-                </span>
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-accent text-primary text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
               </Button>
             </Link>
           </div>
         </div>
       </div>
+
+      {/* Search Bar */}
+      {searchOpen && (
+        <div className="border-t border-border bg-background">
+          <div className="container mx-auto px-6 py-4">
+            <form onSubmit={handleSearch} className="flex items-center gap-2">
+              <Input
+                type="text"
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="flex-1"
+                autoFocus
+              />
+              <Button type="submit" variant="default">
+                Search
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setSearchOpen(false);
+                  setSearchQuery("");
+                }}
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </form>
+          </div>
+        </div>
+      )}
     </nav>
   );
 };

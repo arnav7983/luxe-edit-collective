@@ -3,24 +3,30 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, X, ShoppingBag } from "lucide-react";
-import productBag from "@/assets/product-bag.jpg";
+import { useCart } from "@/contexts/CartContext";
 
 const Cart = () => {
-  // Mock cart data
-  const cartItems = [
-    {
-      id: "1",
-      name: "Structured Leather Tote",
-      price: 1250,
-      quantity: 1,
-      image: productBag,
-      size: "One Size",
-    },
-  ];
+  const { cartItems, updateQuantity, removeItem, loading } = useCart();
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = cartItems.reduce((sum, item) => sum + item.product_price * item.quantity, 0);
   const shipping = subtotal > 500 ? 0 : 50;
   const total = subtotal + shipping;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navigation />
+        <main className="flex-1 pt-32 pb-24">
+          <div className="container mx-auto px-6">
+            <div className="text-center py-24">
+              <p className="text-muted-foreground">Loading cart...</p>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -54,8 +60,8 @@ const Cart = () => {
                     <div className="flex gap-6">
                       <div className="w-32 h-32 bg-muted overflow-hidden flex-shrink-0">
                         <img
-                          src={item.image}
-                          alt={item.name}
+                          src={item.product_image}
+                          alt={item.product_name}
                           className="w-full h-full object-cover"
                         />
                       </div>
@@ -64,22 +70,38 @@ const Cart = () => {
                         <div>
                           <div className="flex justify-between items-start mb-2">
                             <div>
-                              <h3 className="font-serif text-lg mb-1">{item.name}</h3>
+                              <h3 className="font-serif text-lg mb-1">{item.product_name}</h3>
                               <p className="text-sm text-muted-foreground">Size: {item.size}</p>
                             </div>
-                            <Button variant="ghost" size="icon" className="hover:text-destructive">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="hover:text-destructive"
+                              onClick={() => removeItem(item.id)}
+                            >
                               <X className="h-5 w-5" />
                             </Button>
                           </div>
-                          <p className="text-lg font-medium">${item.price.toLocaleString()}</p>
+                          <p className="text-lg font-medium">${item.product_price.toLocaleString()}</p>
                         </div>
 
                         <div className="flex items-center gap-2 mt-4">
-                          <Button variant="outline" size="icon" className="h-8 w-8">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            disabled={item.quantity <= 1}
+                          >
                             <Minus className="h-4 w-4" />
                           </Button>
                           <span className="w-12 text-center">{item.quantity}</span>
-                          <Button variant="outline" size="icon" className="h-8 w-8">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          >
                             <Plus className="h-4 w-4" />
                           </Button>
                         </div>

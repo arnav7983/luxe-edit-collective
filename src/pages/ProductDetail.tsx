@@ -4,12 +4,12 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Heart, ShoppingBag, Check, Star } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useCart } from "@/contexts/CartContext";
 import productBag from "@/assets/product-bag.jpg";
 
 const ProductDetail = () => {
   const { id } = useParams();
-  const { toast } = useToast();
+  const { addItemToCart } = useCart();
   const [selectedSize, setSelectedSize] = useState("");
 
   // Mock product data
@@ -31,18 +31,14 @@ const ProductDetail = () => {
     ],
   };
 
-  const handleAddToCart = () => {
-    if (!selectedSize && product.sizes.length > 1) {
-      toast({
-        title: "Please select a size",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    toast({
-      title: "Added to cart",
-      description: `${product.name} has been added to your cart`,
+  const handleAddToCart = async () => {
+    await addItemToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.images[0],
+      category: product.category,
+      size: selectedSize || "One Size",
     });
   };
 
