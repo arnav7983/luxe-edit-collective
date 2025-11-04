@@ -1,14 +1,11 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, X, ShoppingBag } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
-import { useAuth } from "@/contexts/AuthContext";
 
 const Cart = () => {
-  const navigate = useNavigate();
-  const { user } = useAuth();
   const { cartItems, updateQuantity, removeItem, loading } = useCart();
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.product_price * item.quantity, 0);
@@ -142,17 +139,7 @@ const Cart = () => {
                     </div>
                   </div>
 
-                  <Button
-                    size="lg"
-                    className="w-full luxury-button text-base"
-                    onClick={() => {
-                      if (user) {
-                        navigate("/checkout");
-                      } else {
-                        navigate("/signin", { state: { from: { pathname: "/checkout" } } });
-                      }
-                    }}
-                  >
+                  <Button size="lg" className="w-full luxury-button text-base">
                     Proceed to Checkout
                   </Button>
 
