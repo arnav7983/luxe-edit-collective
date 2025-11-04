@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { getCartItems, getCartCount, addToCart, updateCartItemQuantity, removeFromCart, CartItem } from '@/lib/cart';
+import { getCartItems, getCartCount, addToCart, updateCartItemQuantity, removeFromCart, clearCart, CartItem } from '@/lib/cart';
 import { toast } from '@/hooks/use-toast';
 
 interface CartContextType {
@@ -17,6 +17,7 @@ interface CartContextType {
   }) => Promise<void>;
   updateQuantity: (itemId: string, quantity: number) => Promise<void>;
   removeItem: (itemId: string) => Promise<void>;
+  clearCart: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -105,6 +106,19 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     }
   };
 
+  const clearCartItems = async () => {
+    try {
+      await clearCart();
+      await refreshCart();
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to clear cart',
+        variant: 'destructive',
+      });
+    }
+  };
+
   useEffect(() => {
     refreshCart();
   }, []);
@@ -119,6 +133,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         addItemToCart,
         updateQuantity,
         removeItem,
+        clearCart: clearCartItems,
       }}
     >
       {children}

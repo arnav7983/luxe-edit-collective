@@ -1,14 +1,28 @@
 import { useState } from "react";
-import { ShoppingBag, Search, User, Heart, X } from "lucide-react";
+import { ShoppingBag, Search, User, Heart, X, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Navigation = () => {
+  const navigate = useNavigate();
   const { cartCount } = useCart();
+  const { user, signOut } = useAuth();
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,9 +68,27 @@ const Navigation = () => {
             >
               <Search className="h-5 w-5" />
             </Button>
-            <Button variant="ghost" size="icon" className="hover:text-accent transition-colors">
-              <User className="h-5 w-5" />
-            </Button>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="hover:text-accent transition-colors">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link to="/signin">
+                <Button variant="ghost" size="icon" className="hover:text-accent transition-colors">
+                  <User className="h-5 w-5" />
+                </Button>
+              </Link>
+            )}
             <Button variant="ghost" size="icon" className="hover:text-accent transition-colors">
               <Heart className="h-5 w-5" />
             </Button>
